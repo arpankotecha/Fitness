@@ -1,10 +1,20 @@
 import React, { Component } from 'react'
-import { View } from 'react-native'
-import { getMetricMetaInfo } from '../utils/helpers'
-import Slider from './Slider'
-import Steppers from './Steppers'
+import { View, TouchableOpacity, Text } from 'react-native'
+import { getMetricMetaInfo, timeToString } from '../utils/helpers'
+import FitnessSlider from './FitnessSlider'
+import FitnessSteppers from './FitnessSteppers'
 import DataHeader from './DateHeader'
+import { Ionicons } from '@expo/vector-icons'
+import TextButton from './TextButton'
 
+function SubmitBtn ({ onPress }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}>
+      <Text>Submit</Text>
+    </TouchableOpacity>
+  )
+}
 
 export default class AddEntry extends Component {
   state = {
@@ -45,8 +55,51 @@ export default class AddEntry extends Component {
     }))
   }
 
+  submit = () => {
+    const key = timeToString()
+    const entry = this.state
+
+    // Update Redux
+    this.setState(() => ({
+      run: 0,
+      bike: 0,
+      swim: 0,
+      sleep: 0,
+      eat: 0
+    }))
+    // Navigate to home
+    // Save to 'DB'
+    // Clear local notification
+  }
+
+  reset = () => {
+    const key = timeToString()
+
+    //Update Redux
+    //
+    //Route to Home
+    //
+    //Update Db
+  }
+
   render() {
     const metaInfo = getMetricMetaInfo()
+
+    if (this.props.alreadyLogged) {
+      return (
+        <View>
+          <Ionicons
+            name='ios-happy-outline'
+            size={100}
+          />
+          <Text>You already logged your information for today</Text>
+          <TextButton onPress={this.reset}>
+            Reset
+          </TextButton>
+        </View>
+      )
+    }
+
     return (
       <View>
         <DataHeader date={new Date().toLocaleDateString()}/>
@@ -58,12 +111,12 @@ export default class AddEntry extends Component {
             <View key={key}>
               {getIcon()}
               {type === 'slider'
-                  ? <Slider 
+                  ? <FitnessSlider 
                       value={value} 
                       onChange={(value) => this.slide(key, value)}
                       {...rest}
                     />
-                  : <Steppers 
+                  : <FitnessSteppers 
                       value={value}
                       onIncrement={() => this.increment(key)}
                       onDecrement={() => this.decrement(key)}
@@ -73,6 +126,7 @@ export default class AddEntry extends Component {
             </View>
           )
         })}
+        <SubmitBtn onPress={this.submit} />
       </View>
     )
   }
